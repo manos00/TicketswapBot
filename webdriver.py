@@ -9,67 +9,78 @@ from selenium.webdriver.support import expected_conditions as EC
 TIMEOUT_THRESHOLD = 1
 
 
-class WebDriver:
-    def __init__(self):
-        self.driver = webdriver.Chrome(
-            executable_path=get_chromedriver_path(), options=self.get_options())
 
-    def get_current_url(self):
-        return self.driver.current_url
+class WebDriver(webdriver.Firefox):
+    def __init__(self): #, browser='chrome'
+        # self.browser = browser.lower()
+        self.executable_path = get_driver_path('firefox')
+        # if self.browser == 'chrome':
+        #     from selenium.webdriver.chrome.service import Service
+        #     service = Service(executable_path=self.executable_path)
+        #     self.driver = webdriver.Chrome(service=service
+        #     ,options=self.get_options())
+        # elif self.browser == 'firefox':
+        from selenium.webdriver.firefox.service import Service
+        service = Service(executable_path=self.executable_path)
+        driver = webdriver(service=service, options=self.get_options())
 
-    def open_url(self, url):
-        self.driver.get(url)
+    # def get_current_url(self):
+    #     return self.driver.current_url
 
-    def refresh(self):
-        self.driver.refresh()
+    # def open_url(self, url):
+    #     self.driver.get(url)
 
-    def find_element_by_x_path(self, element_x_path):
-        try:
-            return WebDriverWait(self.driver, TIMEOUT_THRESHOLD).until(
-                EC.visibility_of_element_located((By.XPATH, element_x_path))
-            )
-        except TimeoutException:
-            logging.warning(
-                "Element isn't located yet: {}".format(element_x_path))
+    # def refresh(self):
+    #     self.driver.refresh()
 
-    def find_element_by_visible_text(self, element_text):
-        case_insensitive_element_x_path = "//*[text()[contains(translate(., '{}', '{}'), '{}')]]" \
-            .format(element_text.upper(), element_text.lower(), element_text.lower())
-        return self.find_element_by_x_path(case_insensitive_element_x_path)
+    # def find_element(self, type):
+    #     self.driver.find_element()
 
-    def click_on_element(self, element):
-        try:
-            element.click()
-            return True
-        except:
-            logging.warning("Unable to click on the element")
-            return False
+    # def find_element_by_x_path(self, element_x_path):
+    #     try:
+    #         return WebDriverWait(self.driver, TIMEOUT_THRESHOLD).until(
+    #             EC.visibility_of_element_located((By.XPATH, element_x_path))
+    #         )
+    #     except TimeoutException:
+    #         logging.warning(
+    #             "Element isn't located yet: {}".format(element_x_path))
 
-    def fill_in_input_field(self, input_field_x_path, text):
-        input_field = self.find_element_by_x_path(input_field_x_path)
-        try:
-            for character in text:
-                input_field.send_keys(character)
-            return True
-        except:
-            logging.warning(
-                "Unable to fill in the input field: {}".format(input_field_x_path))
-            return False
+    # def find_element_by_visible_text(self, element_text):
+    #     case_insensitive_element_x_path = "//*[text()[contains(translate(., '{}', '{}'), '{}')]]" \
+    #         .format(element_text.upper(), element_text.lower(), element_text.lower())
+    #     return self.find_element_by_x_path(case_insensitive_element_x_path)
 
-    def quit(self):
-        self.driver.quit()
+    # def click_on_element(self, element):
+    #     try:
+    #         element.click()
+    #         return True
+    #     except:
+    #         logging.warning("Unable to click on the element")
+    #         return False
 
-    def get_options(self):
-        options = webdriver.ChromeOptions()
-        options.add_argument("lang=nl-BE")
-        options.add_argument("start-maximized");
-        return options
+    # def fill_in_input_field(self, input_field_x_path, text):
+    #     input_field = self.find_element_by_x_path(input_field_x_path)
+    #     try:
+    #         for character in text:
+    #             input_field.send_keys(character)
+    #         return True
+    #     except:
+    #         logging.warning(
+    #             "Unable to fill in the input field: {}".format(input_field_x_path))
+    #         return False
+
+    # def quit(self):
+    #     self.driver.quit()
 
 
-def get_chromedriver_path():
+def get_driver_path(browser):
+    if browser == 'chrome':
+        driver = 'chromdriver'
+    elif browser == 'firefox':
+        driver = 'geckodriver'
     current_dir_path = os.path.dirname(__file__)
-    chromedriver_path = os.path.join(current_dir_path, "chromedriver")
+    driver_path = os.path.join(current_dir_path, driver)
     # for Windows users
     if os.name == "nt":
-        chromedriver_path += ".exe"
-    return chromedriver_path
+        driver_path += ".exe"
+    return driver_path

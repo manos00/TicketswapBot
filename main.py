@@ -10,26 +10,15 @@ def main():
     logging.info("Starting bot")
 
     settings = util.get_settings()
+    app = settings['app']
     ticket = settings['ticket']
-    notification = settings['notification']
+    # notification = settings['notification']
     logging.info("Retrieved data from json file")
 
-    bot = Bot(ticket["magicLink"].strip())
+    bot = Bot(ticket["magicLink"].strip(), app["browser"].strip())
     logging.info("Initialized a bot instance")
 
-    time.sleep(2)
-    logging.info("Navigating to start page")
-    bot.go_to_start_page()
-
-    time.sleep(2)
-    logging.info("Navigating to festival page")
-    bot.go_to_festival_page(ticket['festivalName'].strip())
-
-    time.sleep(2)
-    logging.info("Navigating to ticket page")
-    bot.go_to_ticket_page(ticket["otherCategory"].strip(), ticket["ticketName"].strip())
-
-    time.sleep(2)
+    time.sleep(20) # time to log in 
     logging.info("Starting to look for available tickets")
     while bot.find_available() is False:
         logging.warning("No tickets found, trying again...")
@@ -39,9 +28,6 @@ def main():
 
     logging.info("Reserving ticket")
     bot.reserve_ticket()
-
-    logging.info("Dialing user")
-    bot.dial_number(notification["twilioPhone"], notification["phone"], notification["sid"], notification["token"])
 
     logging.info("Waiting for checkout completion")
     time.sleep(900) # 15 minutes of buffer time to complete checkout

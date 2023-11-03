@@ -1,9 +1,9 @@
 {
+    "app": {
+        "browser": "firefox"
+    },
     "ticket": {
-        "magicLink": "",
-        "festivalName": "",
-        "otherCategory": "",
-        "ticketName": ""
+        "magicLink": "https://www.ticketswap.com/event/red-bull-dance-your-style-world-final/regular-tickets/2b8293f7-a624-4263-9061-14cde9df3c64/3168466"
     },
     "notification": {
         "sid": "",

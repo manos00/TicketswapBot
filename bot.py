@@ -1,53 +1,42 @@
-from webdriver import WebDriver
+from selenium import webdriver
 from selenium.common.exceptions import NoSuchElementException
-from twilio.rest import Client
-import smtplib
+from selenium.webdriver.firefox.options import Options
+from selenium.webdriver.firefox.firefox_profile import FirefoxProfile
+# from twilio.rest import Client
 import time
 import random
+import os 
 
 
 class Bot:
-    def __init__(self, start_page_url):
-        self.webdriver = WebDriver()
-        self.start_page_url = start_page_url
-
-    def go_to_start_page(self):
-        self.webdriver.open_url(self.start_page_url)
-
-    def refresh(self):
-        self.webdriver.refresh()
-
-    def go_to_festival_page(self, festival_name):
-        self.webdriver.fill_in_input_field("/html/body/div[1]/div[1]/section/div[2]/div/div/div[1]/label/div[2]/input",
-                                           festival_name)
-        time.sleep(1)
-        self.select_item_by_x_path('//*[@id="site-search-item-0"]')
+    def __init__(self, festival_url, browser):
+        from selenium.webdriver.firefox.service import Service
+        current_dir_path = os.path.dirname(__file__)
+        driver_path = os.path.join(current_dir_path, 'geckodriver')
+        service = Service(executable_path=driver_path)
+        my_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.159 Safari/537.36"
+        profile = FirefoxProfile()
+        profile.set_preference("general.useragent.override", my_user_agent)
+        profile.set_preference("dom.webdriver.enabled", False)
+        profile.set_preference('useAutomationExtension', False)
+        firefox_options = Options()
+        firefox_options.profile = profile
+        self.webdriver = webdriver.Firefox(service=service, options=firefox_options)
+        self.webdriver.get(festival_url)    
 
     def quit(self):
         self.webdriver.quit()
 
-    def is_on_start_page(self):
-        return self.webdriver.get_current_url() == self.start_page_url
-
-    def select_item(self, item_name):
-        item = self.webdriver.find_element_by_x_path(f'//*[text()="{item_name}"]')
-        return self.webdriver.click_on_element(item)
-
-    def select_item_by_x_path(self, item_x_path):
-        item = self.webdriver.find_element_by_x_path(item_x_path)
-        return self.webdriver.click_on_element(item)
-
     def go_to_ticket_page(self, otherCategory, ticketName):
-        if otherCategory == "":
-            self.select_item_by_x_path(f'//*[text()="{ticketName}"]')
-        else:
-            self.select_item(otherCategory)
-            time.sleep(1)
-            self.select_item_by_x_path(f'//*[text()="{ticketName}"]')
+        time.sleep(1)
+        item = self.select_item_by_tag_name('li')
+        a = item.find_element('xpath', 'a')
+        print(a.href)
+        a.click()
 
     def find_available(self):
         try:
-            self.webdriver.driver.find_element_by_xpath('//*[text()="Er worden op dit moment geen tickets aangeboden."]')
+            self.webdriver.find_element('xpath', '//*[text()="No tickets available at the moment."]')
         except NoSuchElementException:
             return True
         return False
@@ -55,17 +44,13 @@ class Bot:
     def refresher(self):
         random_decimal = random.randint(40000, 80000) / 10000
         time.sleep(random_decimal)
-        self.refresh()
+        self.webdriver.refresh()
 
     def reserve_ticket(self):
-        self.select_item_by_x_path("/html/body/div[1]/div[2]/div[3]/a[1]")
+        try:
+            ticket = self.webdriver.find_element('xpath', '/html/body/div[1]/div[2]/div/div[4]/div[1]/div[2]/a')
+        except NoSuchElementException:
+            ticket = self.webdriver.find_element('xpath', '/html/body/div[1]/div[2]/div/div[4]/div[1]/div[2]/a[1]')
+        ticket.click()
         time.sleep(0.355)
-        self.select_item_by_x_path('//*[text()="Koop ticket"]')
-
-    def dial_number(self, twilioNumber, number, sid, token):
-        TWIML_INSTRUCTIONS_URL = \
-            "https://static.fullstackpython.com/phone-calls-python.xml"
-        client = Client(sid, token)
-
-        client.calls.create(to=number, from_=twilioNumber,
-                            url=TWIML_INSTRUCTIONS_URL, method="GET")
+        self.webdriver.find_element('xpath', '//*[text()="Buy ticket"]').click()
