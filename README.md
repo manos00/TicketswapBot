@@ -1,3 +1,10 @@
+# BOT DOES NOT WORK
+
+the readme below is from the original repo
+bot was outdated and i tried to update it, you cant reserve tickets, because you need to log in, which is blocked by the site when using a web driver for automation 
+i stopped trying to get around it, because i got the ticket i wanted manually lol 
+maybe will be coming back to the project some time later 
+
 # Ticketswap Bot
 Bot for ticketswap.be that allows users to reserve tickets for festivals,...  
 Bot automatically checks for tickets  
