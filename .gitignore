@@ -1,6 +1,7 @@
 # Manually added to template
 .idea
-chromedriver.exe
+geckodriver*
+chromedriver*
 settings.json
 
 # Byte-compiled / optimized / DLL files
